@@ -39,10 +39,7 @@ class BookingController extends AbstractController
 
         $availableSlots = $bookingService->getAvailableDatesAndTimesByServiceCompany($companyService);
 
-        dump($availableSlots);
-
         $form = $this->createForm(BookingType::class, $booking);
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
