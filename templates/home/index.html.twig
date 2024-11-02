@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    {% include 'components/_header.html.twig' with {
+        'title': app_name,
+        'subtitle': "La réservation de services en ligne n'a jamais été aussi simple !"
+    } %}
+
+    <section class="py-5">
+        <div class="container px-4 px-lg-5 mt-5">
+            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                {% for company in companies %}
+                    <div class="col mb-5">
+                        <div class="card h-100">
+                            {% include 'components/_card_img_company.html.twig' %}
+                            
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <h5 class="fw-bolder">{{ company.name }}</h5>
+                                    <p><i class="fa-solid fa-globe"></i> {{ company.city }} ({{company.code}})</p>
+                                    <p><i class="fa-solid fa-location-dot"></i> {{ company.adress }}</p>
+                                </div>
+
+                                <hr class="my-3">
+                                <h6 class="fw-bold text-center mb-3">Services</h6>
+                                
+                                {% if company.companyServices|length > 0 %}
+                                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                        {% for service in company.companyServices %}
+                                            <div class="service-badge p-2">
+                                                <a class="text-white text-decoration-none" href="{{ path('booking_new', {'companyServiceId': service.id}) }}">
+                                                    <span class="badge bg-primary text-wrap">
+                                                        {{ service.serviceType.name }} - {{ service.price }} € - {{ service.duration }} min
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <p class="text-center text-muted">Aucun service disponible pour cette entreprise.</p>
+                                {% endif %}
+                            </div>
+
+                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                <div class="text-center">
+                                    <a class="btn btn-outline-dark mt-auto" href="{{ path('company_show', {'id': company.id}) }}">Voir tous les services</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

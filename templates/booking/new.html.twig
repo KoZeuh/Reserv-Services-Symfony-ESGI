@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle réservation{% endblock %}
+
+{% block body %}
+    {% include 'components/_header.html.twig' with {
+        'title': companyService.company.name,
+        'subtitle': companyService.title,
+        'badgeText': companyService.price ~ ' € / ' ~ companyService.duration ~ ' min'
+    } %}
+
+    {{ form_start(form) }}
+        <section class="py-2">
+            <table class="table">
+                <thead>
+                    <tr>
+                        {% for date, times in availableSlots %}
+                            <th scope="col">{{ date|date("d/m/Y") }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    <tr>
+                        {% for date, times in availableSlots %}
+                            <td>
+                                <ul class="list-unstyled">
+                                    {% for time in times %}
+                                        <li>
+                                            <label>
+                                                <input type="radio" name="selectedDate" value="{{ date|date("Y-m-d") }} {{ time|date("H:i") }}" required/>
+                                                {{ time|date("H:i") }}
+                                            </label>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="text-center">
+                {{ form_row(form.validate) }}
+            </div>
+        </section>
+    {{ form_end(form) }}
+{% endblock %}
