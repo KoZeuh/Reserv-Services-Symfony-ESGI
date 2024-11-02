@@ -25,6 +25,7 @@
 3. Run the `composer i` command in the project root.
 4. Modify your database connection information. (`.env`)
 5. Run the `php bin/console doctrine:database:create` command in the project root.
+6. Run the `php bin/console doctrine:migrations:migrate` command in the project root.
 5. Run fixtures to get a dataset. (`php bin/console doctrine:fixtures:load`)
 6. Run the `symfony server:start -d` command
 
