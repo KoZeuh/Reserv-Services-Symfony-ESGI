@@ -10,13 +10,11 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class HomeController extends AbstractController
 {
-    public function __construct(private CompanyRepository $companyRepository)
-    {}
-
     #[Route('/', name: 'home')]
-    public function index(): Response
-    {
-        $companies = $this->companyRepository->findAll();
+    public function index(
+        CompanyRepository $companyRepository
+    ): Response {
+        $companies = $companyRepository->findAll();
 
         return $this->render('home/index.html.twig', [
             'companies' => $companies,

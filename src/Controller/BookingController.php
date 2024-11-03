@@ -14,28 +14,30 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/booking')]
+#[IsGranted('IS_AUTHENTICATED_FULLY')]
 class BookingController extends AbstractController
 {
-    public function __construct(private CompanyServiceRepository $companyServiceRepository, private EntityManagerInterface $entityManager)
-    {}
-
     #[Route('/new/{companyServiceId}', name: 'booking_new')]
-    public function show(int $companyServiceId, Request $request, BookingService $bookingService): Response
-    {
-        $user = $this->getUser();
+    public function show(
+        int $companyServiceId,
+        Request $request,
+        BookingService $bookingService,
+        CompanyServiceRepository $companyServiceRepository,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $companyService = $companyServiceRepository->find($companyServiceId);
 
-        if (!$user) {
-            return $this->redirectToRoute('login');
+        if (!$companyService) {
+            throw $this->createNotFoundException("Le service de l'entreprise n'existe pas.");
         }
-
-        $companyService = $this->companyServiceRepository->find($companyServiceId);
 
         $booking = new Booking();
 
         $booking->setCompanyService($companyService);
-        $booking->setUser($user);
+        $booking->setUser($this->getUser());
 
         $availableSlots = $bookingService->getAvailableDatesAndTimesByServiceCompany($companyService);
 
@@ -54,10 +56,17 @@ class BookingController extends AbstractController
 
                 $booking->setDate(new \DateTime($selectedDate));
 
-                $this->entityManager->persist($booking);
-                $this->entityManager->flush();
+                $entityManager->persist($booking);
+                $entityManager->flush();
 
-                $this->addFlash('success', 'Votre réservation chez ' . $companyService->getCompany()->getName() . ' le ' . $booking->getDate()->format('d/m/Y H:i') . ' a bien été prise en compte !');
+                $this->addFlash(
+                    'success',
+                    sprintf(
+                        'Votre réservation chez %s le %s a bien été prise en compte !',
+                        $companyService->getCompany()->getName(),
+                        $booking->getDate()->format('d/m/Y H:i')
+                    )
+                );
 
                 return $this->redirectToRoute('home');
             }
@@ -73,12 +82,6 @@ class BookingController extends AbstractController
     #[Route('/my/list', name: 'booking_my_list')]
     public function list(): Response
     {
-        $user = $this->getUser();
-
-        if (!$user) {
-            return $this->redirectToRoute('login');
-        }
-
         return $this->render('booking/list.html.twig');
     }
 }
